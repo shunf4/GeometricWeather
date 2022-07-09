@@ -59,7 +59,7 @@ public class ChineseCity {
                 Float.parseFloat(getLatitude()), Float.parseFloat(getLongitude()), TimeZone.getTimeZone("Asia/Shanghai"),
                 "中国", getProvince(), getCity(), getDistrict().equals("无") ? "" : getDistrict(),
                 null, source.getSource(),
-                false, false, true
+                false, false, true, null
         );
     }
 

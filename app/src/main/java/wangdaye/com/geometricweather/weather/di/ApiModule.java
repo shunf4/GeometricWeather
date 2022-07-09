@@ -15,6 +15,7 @@ import wangdaye.com.geometricweather.weather.apis.CNWeatherApi;
 import wangdaye.com.geometricweather.weather.apis.CaiYunApi;
 import wangdaye.com.geometricweather.weather.apis.MfWeatherApi;
 import wangdaye.com.geometricweather.weather.apis.OwmApi;
+import wangdaye.com.geometricweather.weather.apis.TencentGeocoderApi;
 
 @InstallIn(ApplicationComponent.class)
 @Module
@@ -57,6 +58,19 @@ public class ApiModule {
                 .addCallAdapterFactory(callAdapterFactory)
                 .build()
                 .create((CaiYunApi.class));
+    }
+
+    @Provides
+    public TencentGeocoderApi provideTencentGeocoderApi(OkHttpClient client,
+                                               GsonConverterFactory converterFactory,
+                                               RxJava2CallAdapterFactory callAdapterFactory) {
+        return new Retrofit.Builder()
+                .baseUrl(BuildConfig.TENCENT_MAP_API_BASE_URL)
+                .client(client)
+                .addConverterFactory(converterFactory)
+                .addCallAdapterFactory(callAdapterFactory)
+                .build()
+                .create((TencentGeocoderApi.class));
     }
 
     @Provides

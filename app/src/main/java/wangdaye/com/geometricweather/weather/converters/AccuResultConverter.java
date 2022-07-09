@@ -76,7 +76,8 @@ public class AccuResultConverter {
                             || result.Country.ID.equals("HK")
                             || result.Country.ID.equals("hk")
                             || result.Country.ID.equals("TW")
-                            || result.Country.ID.equals("tw"))
+                            || result.Country.ID.equals("tw")),
+                    null
             );
         } else {
             return new Location(
@@ -98,7 +99,8 @@ public class AccuResultConverter {
                             || result.Country.ID.equals("HK")
                             || result.Country.ID.equals("hk")
                             || result.Country.ID.equals("TW")
-                            || result.Country.ID.equals("tw"))
+                            || result.Country.ID.equals("tw")),
+                    null
             );
         }
     }

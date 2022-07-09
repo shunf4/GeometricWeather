@@ -4,12 +4,18 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import wangdaye.com.geometricweather.common.basic.models.ChineseCity;
 import wangdaye.com.geometricweather.common.basic.models.Location;
+import wangdaye.com.geometricweather.common.basic.models.options.provider.WeatherSource;
 import wangdaye.com.geometricweather.common.rxjava.BaseObserver;
 import wangdaye.com.geometricweather.common.rxjava.ObserverContainer;
 import wangdaye.com.geometricweather.common.rxjava.SchedulerTransformer;
@@ -27,12 +33,59 @@ public class CaiYunWeatherService extends CNWeatherService {
 
     private final CaiYunApi mApi;
     private final CompositeDisposable mCompositeDisposable;
+    private static final Pattern coordinateRegex = Pattern.compile("^<([^>]+)>\\((\\d+\\.\\d+),(\\d+\\.\\d+)\\)$");
 
     @Inject
     public CaiYunWeatherService(CaiYunApi cyApi, CNWeatherApi cnApi, CompositeDisposable disposable) {
         super(cnApi, disposable);
         mApi = cyApi;
         mCompositeDisposable = disposable;
+    }
+
+    @NonNull
+    @Override
+    public List<Location> requestLocation(Context context, String query) {
+        List<Location> superResult = super.requestLocation(context, query);
+
+        Matcher m = coordinateRegex.matcher(query);
+        if (m.find()) {
+            String cityName = m.group(1);
+            String longitude = m.group(2);
+            String latitude = m.group(3);
+            superResult.add(new Location(
+                cityName + "_" + longitude + "_" + latitude,
+                    Float.parseFloat(latitude),
+                    Float.parseFloat(longitude),
+                    TimeZone.getDefault(),
+                    "",
+                    "",
+                    cityName,
+                    "",
+                    null,
+                    WeatherSource.CAIYUN,
+                    false,
+                    false,
+                    true,
+                    cityName
+            ));
+        }
+
+        return superResult;
+    }
+
+    @Override
+    public void requestLocation(Context context, Location location, @NonNull RequestLocationCallback callback) {
+        super.requestLocation(context, location, new RequestLocationCallback() {
+            @Override
+            public void requestLocationSuccess(String query, List<Location> locationList) {
+                callback.requestLocationSuccess(query, locationList);
+            }
+
+            @Override
+            public void requestLocationFailed(String query) {
+                callback.requestLocationFailed(query);
+            }
+        });
     }
 
     @Override

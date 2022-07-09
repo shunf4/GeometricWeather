@@ -8,6 +8,6 @@ import android.content.Context;
 public class AMapLocationService extends AndroidLocationService {
 
     public AMapLocationService(Context c) {
-        super(c);
+        super(c, null);
     }
 }

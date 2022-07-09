@@ -38,6 +38,8 @@ public class LocationEntity {
     public String city;
     public String district;
 
+    public String street;
+
     @Convert(converter = WeatherSourceConverter.class, columnType = String.class)
     public WeatherSource weatherSource;
 
@@ -45,11 +47,11 @@ public class LocationEntity {
     public boolean residentPosition;
     public boolean china;
 
-    @Generated(hash = 1125075138)
-    public LocationEntity(String formattedId, String cityId, float latitude,
-            float longitude, TimeZone timeZone, String country, String province,
-            String city, String district, WeatherSource weatherSource,
-            boolean currentPosition, boolean residentPosition, boolean china) {
+    @Generated(hash = 757546425)
+    public LocationEntity(String formattedId, String cityId, float latitude, float longitude,
+            TimeZone timeZone, String country, String province, String city, String district,
+            String street, WeatherSource weatherSource, boolean currentPosition,
+            boolean residentPosition, boolean china) {
         this.formattedId = formattedId;
         this.cityId = cityId;
         this.latitude = latitude;
@@ -59,6 +61,7 @@ public class LocationEntity {
         this.province = province;
         this.city = city;
         this.district = district;
+        this.street = street;
         this.weatherSource = weatherSource;
         this.currentPosition = currentPosition;
         this.residentPosition = residentPosition;
@@ -144,5 +147,11 @@ public class LocationEntity {
     }
     public void setChina(boolean china) {
         this.china = china;
+    }
+    public String getStreet() {
+        return this.street;
+    }
+    public void setStreet(String street) {
+        this.street = street;
     }
 }

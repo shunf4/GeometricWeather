@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -86,6 +87,11 @@ public class CNWeatherService extends WeatherService {
         final boolean hasGeocodeInformation = location.hasGeocodeInformation();
 
         Observable.create((ObservableOnSubscribe<List<Location>>) emitter -> {
+            if (location.hasStreetInformation()) {
+                emitter.onNext(Collections.singletonList(new Location(location, location.getWeatherSource())));
+                return;
+            }
+
             DatabaseHelper.getInstance(context).ensureChineseCityList(context);
             List<Location> locationList = new ArrayList<>();
 

@@ -23,6 +23,7 @@ public class LocationEntityGenerator {
         entity.currentPosition = location.isCurrentPosition();
         entity.residentPosition = location.isResidentPosition();
         entity.china = location.isChina();
+        entity.street = location.getStreetRaw();
         return entity;
     }
 
@@ -40,7 +41,7 @@ public class LocationEntityGenerator {
                 entity.latitude, entity.longitude, entity.timeZone,
                 entity.country, entity.province, entity.city, entity.district,
                 null, entity.weatherSource,
-                entity.currentPosition, entity.residentPosition, entity.china
+                entity.currentPosition, entity.residentPosition, entity.china, entity.street
         );
     }
 

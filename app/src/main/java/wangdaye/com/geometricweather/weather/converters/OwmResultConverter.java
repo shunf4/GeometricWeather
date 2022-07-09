@@ -68,7 +68,8 @@ public class OwmResultConverter {
                             || result.country.equals("HK")
                             || result.country.equals("hk")
                             || result.country.equals("TW")
-                            || result.country.equals("tw"))
+                            || result.country.equals("tw")),
+                    null
             );
         } else {
             return new Location(
@@ -90,7 +91,8 @@ public class OwmResultConverter {
                             || result.country.equals("HK")
                             || result.country.equals("hk")
                             || result.country.equals("TW")
-                            || result.country.equals("tw"))
+                            || result.country.equals("tw")),
+                    null
             );
         }
     }

@@ -4,6 +4,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
+if (file("sign.gradle").exists()) {
+    apply from: 'sign.gradle'
+}
+
 android {
     compileSdkVersion 30
     defaultConfig {
@@ -34,11 +38,36 @@ android {
                     outputFileName = "GeometricWeather ${variant.versionName}.apk"
                 }
             }
+
+            if (file("sign.gradle").exists()) {
+                // Local environment
+                signingConfig signingConfigs.release
+
+                /* sign.gradle is like:
+android {
+    signingConfigs {
+        release {
+            keyAlias 'aliasxxx'
+            keyPassword 'passwordxxx'
+            storeFile file('../xxx.jks')
+            storePassword 'passwordxxx'
+        }
+    }
+}
+GitHub config is like:
+SIGNING_KEY:
+`openssl base64 < some_signing_key.jks | tr -d '\n'`
+ALIAS:
+KEY_STORE_PASSWORD:
+KEY_PASSWORD:
+*/
+            }
         }
     }
     buildTypes.each {
         it.buildConfigField 'String', 'CN_WEATHER_BASE_URL', CN_WEATHER_BASE_URL
         it.buildConfigField 'String', 'CAIYUN_WEATHER_BASE_URL', CAIYUN_WEATHER_BASE_URL
+        it.buildConfigField 'String', 'TENCENT_MAP_API_BASE_URL', TENCENT_MAP_API_BASE_URL
         it.buildConfigField 'String', 'ACCU_WEATHER_BASE_URL', ACCU_WEATHER_BASE_URL
         it.buildConfigField 'String', 'ACCU_WEATHER_KEY', ACCU_WEATHER_KEY
         it.buildConfigField 'String', 'ACCU_CURRENT_KEY', ACCU_CURRENT_KEY
@@ -66,12 +95,12 @@ android {
             jniLibs.srcDir 'libs'
             jni.srcDirs = []
         }
-        gplay {
-            java.srcDirs = ["src/nobugly", "src/noamap", "src/proprietary"]
-            manifest.srcFile "proprietary/AndroidManifest.xml"
-            jniLibs.srcDir 'libs'
-            jni.srcDirs = []
-        }
+//        gplay {
+//            java.srcDirs = ["src/nobugly", "src/noamap", "src/proprietary"]
+//            manifest.srcFile "proprietary/AndroidManifest.xml"
+//            jniLibs.srcDir 'libs'
+//            jni.srcDirs = []
+//        }
         fdroid {
             java.srcDirs = ["src/nobugly", "src/noamap", "src/opensource"]
         }
@@ -98,15 +127,15 @@ android {
             dimension "store"
             versionNameSuffix "_pub"
         }
-        gplay {
-            dimension "store"
-            versionNameSuffix "_gplay"
-            repositories {
-                maven {
-                    url "https://dl.bintray.com/qichuan/maven/"
-                }
-            }
-        }
+//        gplay {
+//            dimension "store"
+//            versionNameSuffix "_gplay"
+//            repositories {
+//                maven {
+//                    url "https://dl.bintray.com/qichuan/maven/"
+//                }
+//            }
+//        }
         fdroid {
             dimension "store"
             versionNameSuffix "_fdroid"
@@ -118,7 +147,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
         maven {
             url "https://jitpack.io"
         }
@@ -137,7 +165,7 @@ greendao {
 
 dependencies {
     pubImplementation fileTree(include: ['*.jar'], dir: 'libs')
-    gplayImplementation fileTree(include: ['*.jar'], dir: 'libs')
+//    gplayImplementation fileTree(include: ['*.jar'], dir: 'libs')
 
     // kotlin.
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.32"
@@ -196,7 +224,7 @@ dependencies {
 
     // gms.
     pubImplementation "com.google.android.gms:play-services-location:17.1.0"
-    gplayImplementation "com.google.android.gms:play-services-location:17.1.0"
+//    gplayImplementation "com.google.android.gms:play-services-location:17.1.0"
 
     // glide.
     implementation 'com.github.bumptech.glide:glide:4.11.0'
@@ -237,7 +265,7 @@ dependencies {
     // ui.
     implementation 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
     implementation 'com.jaredrummler:colorpicker:1.1.0'
-    implementation 'com.xw.repo:bubbleseekbar:3.20-lite'
+    implementation 'com.github.woxingxiao:BubbleSeekBar:3.20-lite'
     implementation 'me.jfenn:AdaptiveIconView:0.0.1'
     implementation 'com.github.turing-tech:MaterialScrollBar:13.3.2'
     implementation 'com.gordonwong:material-sheet-fab:1.2.1'

@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -36,6 +38,8 @@ public class Location
     private final String city;
     private final String district;
 
+    private final String street;
+
     @Nullable private Weather weather;
     private final WeatherSource weatherSource;
 
@@ -49,26 +53,26 @@ public class Location
     public Location(Location src, WeatherSource weatherSource) {
         this(src.cityId, src.latitude, src.longitude, src.timeZone, src.country, src.province,
                 src.city, src.district, src.weather, weatherSource, src.currentPosition,
-                src.residentPosition, src.china);
+                src.residentPosition, src.china, src.street);
     }
 
     public Location(Location src, boolean currentPosition, boolean residentPosition) {
         this(src.cityId, src.latitude, src.longitude, src.timeZone, src.country, src.province,
                 src.city, src.district, src.weather, src.weatherSource,
-                currentPosition, residentPosition, src.china);
+                currentPosition, residentPosition, src.china, src.street);
     }
 
     public Location(Location src,
                     float latitude, float longitude, TimeZone timeZone,
-                    String country, String province, String city, String district, boolean china) {
+                    String country, String province, String city, String district, boolean china, String street) {
         this(src.cityId, latitude, longitude, timeZone, country, province, city, district,
-                src.weather, src.weatherSource, src.currentPosition, src.residentPosition, china);
+                src.weather, src.weatherSource, src.currentPosition, src.residentPosition, china, street);
     }
 
     public Location(String cityId, float latitude, float longitude, TimeZone timeZone,
                     String country, String province, String city, String district,
                     @Nullable Weather weather, WeatherSource weatherSource,
-                    boolean currentPosition, boolean residentPosition, boolean china) {
+                    boolean currentPosition, boolean residentPosition, boolean china, String street) {
         this.cityId = cityId;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -82,6 +86,7 @@ public class Location
         this.currentPosition = currentPosition;
         this.residentPosition = residentPosition;
         this.china = china;
+        this.street = street;
     }
 
     public static Location buildLocal() {
@@ -90,7 +95,7 @@ public class Location
                 0, 0, TimeZone.getDefault(),
                 "", "", "", "",
                 null, WeatherSource.ACCU,
-                true, false, false
+                true, false, false, null
         );
     }
 
@@ -100,7 +105,7 @@ public class Location
                 39.904000f, 116.391000f, TimeZone.getTimeZone("Asia/Shanghai"),
                 "中国", "直辖市", "北京", "",
                 null, WeatherSource.ACCU,
-                false, false, true
+                false, false, true, null
         );
     }
 
@@ -183,17 +188,25 @@ public class Location
     }
 
     public String getCityName(Context context) {
+        String fallbackName;
+
         if (!TextUtils.isEmpty(district) && !district.equals("市辖区") && !district.equals("无")) {
-            return district;
+            fallbackName = district;
         } else if (!TextUtils.isEmpty(city) && !city.equals("市辖区")) {
-            return city;
+            fallbackName = city;
         } else if (!TextUtils.isEmpty(province)) {
-            return province;
+            fallbackName = province;
         } else if (currentPosition) {
-            return context.getString(R.string.current_location);
+            fallbackName = context.getString(R.string.current_location);
         } else {
-            return "";
+            fallbackName = "";
         }
+
+        if (street == null) {
+            return fallbackName;
+        }
+
+        return street.replace("%district", fallbackName);
     }
 
     @NonNull
@@ -208,14 +221,25 @@ public class Location
                 && !TextUtils.isEmpty(getDistrict())) {
             builder.append(" ").append(getDistrict());
         }
-        return builder.toString();
+        String fallbackName = builder.toString();
+
+        if (street == null) {
+            return fallbackName;
+        }
+
+        return street.replace("%district", fallbackName);
     }
 
     public boolean hasGeocodeInformation() {
         return !TextUtils.isEmpty(country)
                 || !TextUtils.isEmpty(province)
                 || !TextUtils.isEmpty(city)
-                || !TextUtils.isEmpty(district);
+                || !TextUtils.isEmpty(district)
+                || !TextUtils.isEmpty(street);
+    }
+
+    public boolean hasStreetInformation() {
+        return !TextUtils.isEmpty(street);
     }
 
     @Nullable
@@ -233,6 +257,10 @@ public class Location
 
     public boolean isChina() {
         return china;
+    }
+
+    public String getStreetRaw() {
+        return street;
     }
 
     private static boolean isEquals(@Nullable String a, @Nullable String b) {
@@ -306,6 +334,7 @@ public class Location
         dest.writeString(this.province);
         dest.writeString(this.city);
         dest.writeString(this.district);
+        dest.writeString(this.street);
         dest.writeInt(this.weatherSource == null ? -1 : this.weatherSource.ordinal());
         dest.writeByte(this.currentPosition ? (byte) 1 : (byte) 0);
         dest.writeByte(this.residentPosition ? (byte) 1 : (byte) 0);
@@ -321,6 +350,7 @@ public class Location
         this.province = in.readString();
         this.city = in.readString();
         this.district = in.readString();
+        this.street = in.readString();
         int tmpWeatherSource = in.readInt();
         this.weatherSource = tmpWeatherSource == -1 ? null : WeatherSource.values()[tmpWeatherSource];
         this.currentPosition = in.readByte() != 0;

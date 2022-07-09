@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,8 +23,11 @@ import androidx.annotation.WorkerThread;
 import java.io.IOException;
 import java.util.List;
 
+import io.reactivex.Observable;
 import wangdaye.com.geometricweather.common.utils.LanguageUtils;
 import wangdaye.com.geometricweather.common.utils.helpers.AsyncHelper;
+import wangdaye.com.geometricweather.weather.apis.TencentGeocoderApi;
+import wangdaye.com.geometricweather.weather.json.tencent.TencentGeocoderResult;
 
 /**
  * Android Location service.
@@ -42,6 +46,8 @@ public class AndroidLocationService extends LocationService {
 
     @Nullable private LocationCallback mLocationCallback;
     @Nullable private Location mLastKnownLocation;
+
+    private TencentGeocoderApi tencentGeocoderApi;
 
     private static final long TIMEOUT_MILLIS = 10 * 1000;
 
@@ -71,7 +77,7 @@ public class AndroidLocationService extends LocationService {
         }
     }
 
-    public AndroidLocationService(Context c) {
+    public AndroidLocationService(Context c, TencentGeocoderApi tencentGeocoderApi) {
         mContext = c;
         mTimer = new Handler(Looper.getMainLooper());
 
@@ -80,6 +86,8 @@ public class AndroidLocationService extends LocationService {
 
         mLocationCallback = null;
         mLastKnownLocation = null;
+
+        this.tencentGeocoderApi = tencentGeocoderApi;
     }
 
     @Override
@@ -230,6 +238,28 @@ public class AndroidLocationService extends LocationService {
                     || countryCode.equals("hk")
                     || countryCode.equals("TW")
                     || countryCode.equals("tw");
+        }
+
+        try {
+            Observable<TencentGeocoderResult> streetQueryResultO = tencentGeocoderApi.getStreetName(
+                    location.getLatitude() + "," + location.getLongitude(),
+                    "json",
+                    "4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H"
+            );
+
+            TencentGeocoderResult streetQueryResult = streetQueryResultO.blockingFirst();
+
+            if (streetQueryResult.status != 0) {
+                throw new RuntimeException("streetQueryResult has erroneous result");
+            }
+
+            result.street = streetQueryResult.result.addressComponent.street;
+            if (TextUtils.isEmpty(result.street)) {
+                result.street = "%district (Unknown)";
+            }
+        } catch (Exception e) {
+            Log.e("AndroidLocationService", "buildResult tencent map geocode api: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            result.street = "%district (Unknown)";
         }
 
         return result;

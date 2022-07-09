@@ -76,7 +76,8 @@ public class MfResultConverter {
                             || result.properties.country.startsWith("HK")
                             || result.properties.country.startsWith("hk")
                             || result.properties.country.startsWith("TW")
-                            || result.properties.country.startsWith("tw"))
+                            || result.properties.country.startsWith("tw")),
+                    null
             );
         } else {
             return new Location(
@@ -98,7 +99,8 @@ public class MfResultConverter {
                             || result.properties.country.startsWith("HK")
                             || result.properties.country.startsWith("hk")
                             || result.properties.country.startsWith("TW")
-                            || result.properties.country.startsWith("tw"))
+                            || result.properties.country.startsWith("tw")),
+                    null
             );
         }
     }
@@ -129,7 +131,8 @@ public class MfResultConverter {
                             || result.country.equals("HK")
                             || result.country.equals("hk")
                             || result.country.equals("TW")
-                            || result.country.equals("tw"))
+                            || result.country.equals("tw")),
+                    null
             );
         } else {
             return new Location(
@@ -151,7 +154,8 @@ public class MfResultConverter {
                             || result.country.equals("HK")
                             || result.country.equals("hk")
                             || result.country.equals("TW")
-                            || result.country.equals("tw"))
+                            || result.country.equals("tw")),
+                    null
             );
         }
     }

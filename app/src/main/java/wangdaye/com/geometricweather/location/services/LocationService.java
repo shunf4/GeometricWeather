@@ -32,6 +32,8 @@ public abstract class LocationService {
         public String province;
         public String country;
 
+        public String street;
+
         public boolean inChina;
         public boolean hasGeocodeInformation;
 

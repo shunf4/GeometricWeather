@@ -26,6 +26,7 @@ import wangdaye.com.geometricweather.location.services.LocationService;
 import wangdaye.com.geometricweather.location.services.ip.BaiduIPLocationService;
 import wangdaye.com.geometricweather.settings.SettingsManager;
 import wangdaye.com.geometricweather.weather.WeatherServiceSet;
+import wangdaye.com.geometricweather.weather.apis.TencentGeocoderApi;
 import wangdaye.com.geometricweather.weather.services.WeatherService;
 
 /**
@@ -45,9 +46,10 @@ public class LocationHelper {
     @Inject
     public LocationHelper(@ApplicationContext Context context,
                           BaiduIPLocationService baiduIPService,
+                          TencentGeocoderApi tencentGeocoderApi,
                           WeatherServiceSet weatherServiceSet) {
         mLocationServices = new LocationService[] {
-                new AndroidLocationService(context),
+                new AndroidLocationService(context, tencentGeocoderApi),
                 new BaiduLocationService(context),
                 baiduIPService,
                 new AMapLocationService(context)
@@ -109,7 +111,7 @@ public class LocationHelper {
 
                     requestAvailableWeatherLocation(context, new Location(
                             location, result.latitude, result.longitude, TimeZone.getDefault(),
-                            result.country, result.province, result.city, result.district, result.inChina
+                            result.country, result.province, result.city, result.district, result.inChina, result.street
                     ), l);
                 }
         );
@@ -128,6 +130,7 @@ public class LocationHelper {
                 if (locationList.size() > 0) {
                     Location src = locationList.get(0);
                     Location result = new Location(src, true, src.isResidentPosition());
+                    result.setWeather(target.getWeather());
                     DatabaseHelper.getInstance(context).writeLocation(result);
                     l.requestLocationSuccess(result);
                 } else {

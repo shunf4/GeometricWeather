@@ -9,6 +9,6 @@ import android.content.Context;
 public class BaiduLocationService extends AndroidLocationService {
 
     public BaiduLocationService(Context c) {
-        super(c);
+        super(c, null);
     }
 }
