@@ -100,8 +100,11 @@ public class Constants {
 
             case THUNDERSTORM:
                 return RESOURCES_THUNDERSTORM;
+
+            case UNKNOWN:
+                return "weather_unknown";
         }
-        return RESOURCES_CLOUDY;
+        return "unknown";
     }
 
     public static String getShortcutsName(WeatherCode code) {

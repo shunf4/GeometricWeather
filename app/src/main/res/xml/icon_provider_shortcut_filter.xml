@@ -61,4 +61,10 @@
     <item name="shortcuts_thunderstorm_night" value="shortcuts_thunderstorm" />
     <item name="shortcuts_thunderstorm_night_foreground" value="shortcuts_thunderstorm_foreground" />
 
+    <item name="shortcuts_unknown_day" value="weather_unknown" />
+    <item name="shortcuts_unknown_day_foreground" value="weather_unknown" />
+
+    <item name="shortcuts_unknown_night" value="weather_unknown" />
+    <item name="shortcuts_unknown_night_foreground" value="weather_unknown" />
+
 </resources>

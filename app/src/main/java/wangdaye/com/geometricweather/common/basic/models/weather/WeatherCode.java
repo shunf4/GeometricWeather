@@ -12,7 +12,8 @@ public enum WeatherCode {
     SLEET,
     HAIL,
     THUNDER,
-    THUNDERSTORM;
+    THUNDERSTORM,
+    UNKNOWN;
 
     public boolean isPrecipitation() {
         return this == RAIN || this == SNOW || this == SLEET || this == HAIL || this == THUNDERSTORM;

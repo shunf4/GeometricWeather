@@ -657,7 +657,7 @@ public class CaiyunResultConverter {
                 return  "霾";
 
             default:
-                return "未知";
+                return "未知 (" + icon + ")";
         }
     }
 
@@ -734,7 +734,7 @@ public class CaiyunResultConverter {
                 return WeatherCode.HAZE;
 
             default:
-                return WeatherCode.CLOUDY;
+                return WeatherCode.UNKNOWN;
         }
     }
 

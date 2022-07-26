@@ -175,4 +175,22 @@
     <item name="weather_thunderstorm_night_mini_dark" value="weather_thunderstorm_mini_dark" />
     <item name="weather_thunderstorm_night_mini_xml" value="weather_thunderstorm_mini_xml" />
 
+    <item name="weather_unknown_day" value="weather_unknown" />
+    <item name="weather_unknown_day_1" value="weather_unknown_1" />
+    <item name="weather_unknown_day_2" value="weather_unknown_2" />
+    <item name="weather_unknown_day_3" value="weather_unknown_3" />
+    <item name="weather_unknown_day_mini_light" value="weather_unknown" />
+    <item name="weather_unknown_day_mini_grey" value="weather_unknown" />
+    <item name="weather_unknown_day_mini_dark" value="weather_unknown" />
+    <item name="weather_unknown_day_mini_xml" value="weather_unknown" />
+
+    <item name="weather_unknown_night" value="weather_unknown" />
+    <item name="weather_unknown_night_1" value="weather_unknown_1" />
+    <item name="weather_unknown_night_2" value="weather_unknown_2" />
+    <item name="weather_unknown_night_3" value="weather_unknown_3" />
+    <item name="weather_unknown_night_mini_light" value="weather_unknown" />
+    <item name="weather_unknown_night_mini_grey" value="weather_unknown" />
+    <item name="weather_unknown_night_mini_dark" value="weather_unknown" />
+    <item name="weather_unknown_night_mini_xml" value="weather_unknown" />
+
 </resources>
