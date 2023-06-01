@@ -47,7 +47,7 @@ public class Location
     private final boolean residentPosition;
     private final boolean china;
 
-    private static final String NULL_ID = "NULL_ID";
+    public static final String NULL_ID = "NULL_ID";
     public static final String CURRENT_POSITION_ID = "CURRENT_POSITION";
 
     public Location(Location src, WeatherSource weatherSource) {

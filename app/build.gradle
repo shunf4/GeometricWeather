@@ -30,7 +30,7 @@ android {
             minifyEnabled true
             shrinkResources true
             zipAlignEnabled true
-            debuggable false
+            //debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             android.applicationVariants.all { variant ->
@@ -272,7 +272,7 @@ dependencies {
 
     // utils.
     implementation 'androidx.core:core:1.6.0-alpha01'
-    implementation 'org.jetbrains:annotations-java5:15.0'
+    //implementation 'org.jetbrains:annotations-java5:15.0'
     implementation 'com.github.XhinLiang:LunarCalendar:3.0.0'
     implementation 'com.github.didikee:AndroidDonate:0.1.0'
     implementation "androidx.core:core-ktx:1.2.0"

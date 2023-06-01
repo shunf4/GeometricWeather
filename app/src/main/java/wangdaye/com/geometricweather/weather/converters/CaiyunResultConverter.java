@@ -663,7 +663,7 @@ public class CaiyunResultConverter {
 
     private static WeatherCode getWeatherCode(String icon) {
         if (TextUtils.isEmpty(icon)) {
-            return WeatherCode.CLOUDY;
+            return WeatherCode.UNKNOWN;
         }
 
         switch (icon) {
@@ -674,6 +674,10 @@ public class CaiyunResultConverter {
             case "1":
             case "01":
                 return WeatherCode.PARTLY_CLOUDY;
+
+            case "2":
+            case "02":
+                return WeatherCode.CLOUDY;
 
             case "3":
             case "7":

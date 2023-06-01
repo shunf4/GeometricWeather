@@ -105,7 +105,18 @@ public class LocationHelper {
                 context,
                 result -> {
                     if (result == null) {
-                        l.requestLocationFailed(location);
+//                        l.requestLocationFailed(location);
+                        // shunf4: use last
+                        if (Location.NULL_ID.equals(location.getCityId())) {
+                            l.requestLocationFailed(location);
+                            return;
+                        }
+                        Location lastLocation = new Location(
+                                location, location.getLatitude(), location.getLongitude(), location.getTimeZone(),
+                                location.getCountry(), location.getProvince(), location.getCity(), location.getDistrict(), location.isChina(), location.getStreetRaw().replace(" (Last)", "") + " (Last)"
+                        );
+
+                        requestAvailableWeatherLocation(context, lastLocation, l);
                         return;
                     }
 

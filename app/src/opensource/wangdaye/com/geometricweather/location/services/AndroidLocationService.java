@@ -18,10 +18,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.reactivex.Observable;
 import wangdaye.com.geometricweather.common.utils.LanguageUtils;
@@ -127,6 +129,7 @@ public class AndroidLocationService extends LocationService {
         if (mLocationManager == null) {
             return null;
         }
+        List<String> providers = mLocationManager.getProviders(true);
 
         Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (location != null) {
@@ -135,6 +138,12 @@ public class AndroidLocationService extends LocationService {
         location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if (location != null) {
             return location;
+        }
+        if (providers.contains("fused")) {
+            location = mLocationManager.getLastKnownLocation("fused");
+            if (location != null) {
+                return location;
+            }
         }
         return mLocationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
     }
@@ -186,10 +195,64 @@ public class AndroidLocationService extends LocationService {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @WorkerThread
     private Result buildResult(@NonNull Location location) {
         Result result = new Result((float) location.getLatitude(), (float) location.getLongitude());
         result.hasGeocodeInformation = false;
+
+        Consumer<String> tellAndSetResultIsInChina = additionalCountryCode -> {
+            if (TextUtils.isEmpty(additionalCountryCode)) {
+                if (TextUtils.isEmpty(result.country)) {
+                    result.inChina = false;
+                } else {
+                    result.inChina = result.country.equals("中国")
+                            || result.country.equals("中国大陆")
+                            || result.country.equals("中华人民共和国")
+                            || result.country.equals("香港")
+                            || result.country.equals("澳门")
+                            || result.country.equals("台湾")
+                            || result.country.equals("China");
+                }
+            } else {
+                result.inChina = additionalCountryCode.equals("CN")
+                        || additionalCountryCode.equals("cn")
+                        || additionalCountryCode.equals("HK")
+                        || additionalCountryCode.equals("hk")
+                        || additionalCountryCode.equals("TW")
+                        || additionalCountryCode.equals("tw");
+            }
+        };
+
+        try {
+            Observable<TencentGeocoderResult> streetQueryResultO = tencentGeocoderApi.getStreetName(
+                    location.getLatitude() + "," + location.getLongitude(),
+                    "json",
+                    "4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H"
+            );
+
+            TencentGeocoderResult streetQueryResult = streetQueryResultO.blockingFirst();
+
+            if (streetQueryResult.status != 0) {
+                throw new RuntimeException("streetQueryResult has erroneous result");
+            }
+
+            result.setGeocodeInformation(
+                    streetQueryResult.result.addressComponent.nation,
+                    streetQueryResult.result.addressComponent.province,
+                    streetQueryResult.result.addressComponent.city,
+                    streetQueryResult.result.addressComponent.district
+            );
+            result.street = streetQueryResult.result.addressComponent.street;
+            if (TextUtils.isEmpty(result.street)) {
+                result.street = "%district (Unknown)";
+            }
+            // got full geocode from tencent api, return result now
+            tellAndSetResultIsInChina.accept("");
+        } catch (Exception e) {
+            Log.e("AndroidLocationService", "buildResult tencent map geocode api: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            result.street = "%district (Unknown)";
+        }
 
         if (!Geocoder.isPresent()) {
             return result;
@@ -220,47 +283,7 @@ public class AndroidLocationService extends LocationService {
                 addressList.get(0).getSubLocality()
         );
 
-        String countryCode = addressList.get(0).getCountryCode();
-        if (TextUtils.isEmpty(countryCode)) {
-            if (TextUtils.isEmpty(result.country)) {
-                result.inChina = false;
-            } else {
-                result.inChina = result.country.equals("中国")
-                        || result.country.equals("香港")
-                        || result.country.equals("澳门")
-                        || result.country.equals("台湾")
-                        || result.country.equals("China");
-            }
-        } else {
-            result.inChina = countryCode.equals("CN")
-                    || countryCode.equals("cn")
-                    || countryCode.equals("HK")
-                    || countryCode.equals("hk")
-                    || countryCode.equals("TW")
-                    || countryCode.equals("tw");
-        }
-
-        try {
-            Observable<TencentGeocoderResult> streetQueryResultO = tencentGeocoderApi.getStreetName(
-                    location.getLatitude() + "," + location.getLongitude(),
-                    "json",
-                    "4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H"
-            );
-
-            TencentGeocoderResult streetQueryResult = streetQueryResultO.blockingFirst();
-
-            if (streetQueryResult.status != 0) {
-                throw new RuntimeException("streetQueryResult has erroneous result");
-            }
-
-            result.street = streetQueryResult.result.addressComponent.street;
-            if (TextUtils.isEmpty(result.street)) {
-                result.street = "%district (Unknown)";
-            }
-        } catch (Exception e) {
-            Log.e("AndroidLocationService", "buildResult tencent map geocode api: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-            result.street = "%district (Unknown)";
-        }
+        tellAndSetResultIsInChina.accept(addressList.get(0).getCountryCode());
 
         return result;
     }
